@@ -8,7 +8,7 @@ This project provides `REST API` in PHP code (`without framework`) to send an em
 In high level design, we can see image below:
 ![image](https://github.com/farizalhassyr/6d87dc154b0660a2ffa2b652ca9154fa/assets/68814490/11a76eca-a438-4a73-bd0f-a28a7a7874a0)
 
-`Client-side` will make request to Web Server and get the response. From `Server-side`'s (Apache) perspective, it will authorize the user into Google API and save the data into `PHP SESSION` (server-side storage of user-specific data). Data manipulation (transaction) will be executed by `PostgreSQL` based on request by `Web Server``. In another place, `RabbitMQ` will listen to message request and will execute data for each published message.
+`Client-side` will make request to Web Server and get the response. From `Server-side`'s (Apache) perspective, it will authorize the user into Google API and save the data into `PHP SESSION` (server-side storage of user-specific data). Data manipulation (transaction) will be executed by `PostgreSQL` based on request by `Web Server`. In another place, `RabbitMQ` will listen to message request called `send_email_queue` and will execute data for each published message.
 
 ### Database
 We decided to use 1 table for this DB which called by `emails`.
@@ -47,13 +47,33 @@ Run this url in the browser to create new table `emails`.
 http://localhost:3000/6d87dc154b0660a2ffa2b652ca9154fa/src/migrations/create_email_table.php
 ```
 
+### Connect to PostgreSQL Database
+Can check these useful URLs to check how to connect to PostgreSQL database:
+
+```
+https://www.postgresql.org/docs/current/app-pg-ctl.html
+
+https://tableplus.com/blog/2018/10/how-to-start-stop-restart-postgresql-server.html
+```
+
+
+### Run the PHP with Webserver
+Running ways are different for each Webserver, can check `guide` depending on what WebServer you are using.
+
+We use port 3000 in this project. Therefore, the default homepage url is:
+```
+http://localhost:3000/6d87dc154b0660a2ffa2b652ca9154fa/src/
+```
+*You can change port based on what number you are using*
+
+
 ### Worker
-- Run `Redis` that has been already installed
+- Run `RabbitMQ` that has been already installed
 - Run worker in `/src/workes/email_worker.php` by using:
 ```
 php email_worker.php
 ```
-- Or, alternatively can click this  [URL](http://localhost:3000/6d87dc154b0660a2ffa2b652ca9154fa/src/workers/email_worker.php) in the browser / postman
+- Or, alternatively can click this  [URL](http://localhost:3000/6d87dc154b0660a2ffa2b652ca9154fa/src/workers/email_worker.php) in the browser / postman (don't forget to change port number if you are using different one)
 
 
 ### Environment
@@ -93,16 +113,6 @@ RABBITMQ_PORT=
 RABBITMQ_USERNAME=
 RABBITMQ_PASSWORD=
 ```
-
-### Run the PHP with Webserver
-Running ways are different for each Webserver, can check `guide` depending on what WebServer you are using.
-
-The default homepage url is:
-```
-http://localhost:[port number]/6d87dc154b0660a2ffa2b652ca9154fa/src/
-```
-
-
 
 ## Running with Docker (optional)
 ### Dockerfile
@@ -166,8 +176,26 @@ Here's the configuration example:
 </VirtualHost>
 ```
 
-### Build and Run
-After the configuration is done, we can build the image. Then publish it into the container to be running.
+### Build Image
+After the configuration is done, we can build the image of our program.
+
+To build image, we can run this command:
+
+```docker build -t [IMAGE NAME] .```
+
+
+### Run Container
+After building the image, now we can run the container by using this command:
+
+```
+docker run -d -p 9000:9000 [IMAGE NAME]
+```
+
+*You might need to change port based on your configuration previously*
+
+*Tips for Windows user:*
+
+*To make live easier, Docker provides GUI application to build image, run the container, and check which container is running.*
 
 For more detail guide can read these documentations:
 - [Docker documentations](https://docs.docker.com/compose/compose-file/build/)
